@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
 const Joi = require("joi");
+// const gravatar = require("gravatar");
 
 const { handleMongooseError } = require("../helpers");
 const subscriptionEnum = require("../constants/subscriptionEnum");
@@ -37,7 +38,19 @@ const userSchema = new Schema(
     },
     avatarUrl: {
       type: String,
+      // default: function () {
+      //   return gravatar.url(this.email, { s: "250" }, true);
+      // },
       required: true,
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      default: "",
+      required: [true, "Verify token is required"],
     },
   },
   { versionKey: false, timestamps: true }
@@ -52,6 +65,10 @@ const registerSchema = Joi.object({
   subscription: Joi.string().valid(...Object.values(subscriptionEnum)),
 });
 
+const emailSchema = {
+  email: Joi.string().pattern(emailRegexp).required(),
+};
+
 const loginSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
@@ -60,6 +77,7 @@ const loginSchema = Joi.object({
 
 const schemas = {
   registerSchema,
+  emailSchema,
   loginSchema,
 };
 
